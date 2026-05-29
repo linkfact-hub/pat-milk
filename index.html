@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PAT Milk – Đang tải...</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pink:   { 50:"#fff0f6",100:"#ffd6e7",200:"#ffadd2",300:"#ff85c2",400:"#ff69b4",500:"#eb4899",600:"#c9378a",700:"#a0266e",800:"#7a1b55",900:"#5c1140" },
+            purple: { 50:"#f9f0ff",100:"#efdbff",200:"#d3adf7",300:"#b37feb",400:"#9254de",500:"#722ed1",600:"#531dab",700:"#391085",800:"#22075e",900:"#120338" },
+            boba:   { 50:"#fdf4ff",100:"#fae8ff",200:"#f5d0fe",300:"#f0abfc",400:"#e879f9",500:"#d946ef",600:"#c026d3",700:"#a21caf",800:"#86198f",900:"#701a75" },
+            cream:  { 50:"#fffbf0",100:"#fff3d0",200:"#ffe8a1",300:"#ffd96b",400:"#ffc83d",500:"#ffb800",600:"#e6a600",700:"#b38200",800:"#805d00",900:"#4d3700" },
+          },
+          fontFamily: { sans:['Nunito','sans-serif'], display:['Fredoka One','cursive'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+    body{
+      font-family:'Nunito',sans-serif;
+      background:#fff9fe;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      text-rendering:optimizeLegibility;
+      line-height:1.6;
+      letter-spacing:0.3px
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar{width:5px;height:5px}
+    ::-webkit-scrollbar-thumb{background:#f0abfc;border-radius:4px}
+
+    /* ── Bubble background pattern ── */
+    body::before{
+      content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(240,171,252,.18) 0%, transparent 50%),
+        radial-gradient(circle at 85% 10%, rgba(255,173,210,.15) 0%, transparent 45%),
+        radial-gradient(circle at 50% 80%, rgba(253,244,255,.4) 0%, transparent 60%);
+    }
+
+    /* ── Header ── */
+    .header-sticky{position:sticky;top:0;z-index:50;backdrop-filter:blur(16px);background:rgba(255,249,254,.92);border-bottom:1px solid #fae8ff;box-shadow:0 2px 16px rgba(217,70,239,.08)}
+
+    /* ── Product card ── */
+    .drink-card{transition:transform .22s ease,box-shadow .22s ease;animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both}
+    .drink-card:hover{transform:translateY(-4px) scale(1.01);box-shadow:0 14px 36px rgba(217,70,239,.18)}
+
+    /* ── Shopee card ── */
+    .shopee-card{transition:transform .22s ease,box-shadow .22s ease;animation:popIn .4s ease both}
+    .shopee-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(238,77,45,.18)}
+
+    /* ── Drawer ── */
+    #gio-hang-drawer{position:fixed;right:0;top:0;height:100%;width:min(430px,100vw);background:#fff;z-index:100;box-shadow:-6px 0 36px rgba(217,70,239,.15);transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+    #gio-hang-drawer.open{transform:translateX(0)}
+
+    /* ── Overlay ── */
+    #overlay{position:fixed;inset:0;background:rgba(120,30,140,.32);z-index:90;display:none;backdrop-filter:blur(3px)}
+    #overlay.show{display:block;animation:fadeIn .25s ease}
+
+    /* ── Modal ── */
+    #modal-ok{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(80,0,100,.4)}
+    #modal-ok.show{display:flex}
+
+    /* ── Toast ── */
+    #toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(12px);background:linear-gradient(135deg,#c026d3,#a21caf);color:#fff;padding:9px 22px;border-radius:99px;font-size:13px;font-weight:700;z-index:300;opacity:0;transition:all .28s ease;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;box-shadow:0 4px 16px rgba(192,38,211,.4);letter-spacing:0.3px;text-rendering:optimizeLegibility}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+    /* ── FAB ── */
+    .fab-btn{position:fixed;z-index:80;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 14px rgba(0,0,0,.22);transition:transform .18s ease}
+    .fab-btn:hover{transform:scale(1.1)}
+
+    /* ── Category tabs ── */
+    .dm-tab{transition:all .2s ease;border-bottom:3px solid transparent;white-space:nowrap;position:relative}
+    .dm-tab.active{color:#c026d3;border-bottom-color:#c026d3;font-weight:800}
+    .dm-tab.active::after{content:'';position:absolute;bottom:-3px;left:50%;transform:translateX(-50%);width:6px;height:6px;background:#c026d3;border-radius:50%}
+
+    /* ── Input ── */
+    .inp:focus{outline:none;border-color:#c026d3;box-shadow:0 0 0 3px rgba(192,38,211,.12)}
+
+    /* ── Badge ── */
+    .cart-badge{animation:bounceIn .35s ease}
+
+    /* ── Hết hàng ── */
+    .het-hang-overlay{position:absolute;inset:0;background:rgba(255,255,255,.6);z-index:5;border-radius:inherit;pointer-events:none}
+
+    /* ── Skeleton ── */
+    .skel{background:linear-gradient(90deg,#fae8ff 25%,#f5d0fe 50%,#fae8ff 75%);background-size:200% 100%;animation:shimmer 1.1s infinite;border-radius:16px}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    /* ── Section title ── */
+    .section-title::before{content:'';display:inline-block;width:4px;height:1.1em;background:currentColor;border-radius:2px;margin-right:8px;vertical-align:middle}
+
+    /* ── Shopee ribbon ── */
+    .shopee-ribbon{position:absolute;top:10px;left:-4px;background:#ee4d2d;color:#fff;font-size:10px;font-weight:700;padding:2px 10px 2px 8px;border-radius:0 4px 4px 0;letter-spacing:.4px;box-shadow:2px 2px 6px rgba(238,77,45,.3);text-rendering:optimizeLegibility}
+    .shopee-ribbon::before{content:'';position:absolute;left:0;bottom:-4px;border:2px solid transparent;border-top-color:#b83820;border-right-color:#b83820}
+
+    /* ── Hero Banner ── */
+    #hero-section{min-height:200px;background:linear-gradient(135deg,#a21caf,#c026d3,#e879f9,#f0abfc)}
+    .bubble-deco{position:absolute;border-radius:50%;background:rgba(255,255,255,.12);animation:floatBubble 6s ease-in-out infinite}
+
+    /* ── Promo banner ── */
+    .promo-banner{border-radius:20px;overflow:hidden;animation:popIn .5s ease both}
+
+    /* ── Size badge ── */
+    .size-tag{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;font-size:18px;font-weight:800;flex-shrink:0;letter-spacing:0.2px;text-rendering:optimizeLegibility}
+
+    /* ── Scroll no bar ── */
+    .scroll-x{overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
+    .scroll-x::-webkit-scrollbar{display:none}
+
+    /* ── Shopee section wrap ── */
+    .shopee-section-wrap{background:linear-gradient(135deg,#fff5f3,#fff);border:1px solid #ffd5cc;border-radius:20px}
+
+    /* ── Animations ── */
+    @keyframes popIn{from{opacity:0;transform:scale(.9) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes bounceIn{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+    @keyframes floatBubble{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.04)}}
+    @keyframes slideUpChat{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ── Chat bubbles ── */
+    .ai-bubble-bot{display:flex;gap:8px;align-items:flex-end}
+    .ai-bubble-bot .bubble{background:#fff;border:1px solid #fae8ff;border-radius:16px 16px 16px 4px;padding:9px 13px;font-size:13px;line-height:1.5;color:#1f2937;max-width:85%;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+    .ai-bubble-user{display:flex;justify-content:flex-end}
+    .ai-bubble-user .bubble{background:linear-gradient(135deg,#c026d3,#a21caf);color:#fff;border-radius:16px 16px 4px 16px;padding:9px 13px;font-size:13px;line-height:1.5;max-width:85%}
+    .ai-typing{display:flex;gap:8px;align-items:flex-end}
+    .ai-typing .bubble{background:#fff;border:1px solid #fae8ff;border-radius:16px 16px 16px 4px;padding:10px 16px;display:flex;gap:5px;align-items:center}
+    .ai-typing .dot{width:7px;height:7px;background:#c026d3;border-radius:50%;animation:dotBounce 1.2s ease infinite}
+    .ai-typing .dot:nth-child(2){animation-delay:.2s}
+    .ai-typing .dot:nth-child(3){animation-delay:.4s}
+    @keyframes dotBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+    .ai-chip{flex-shrink:0;background:#fff;border:1.5px solid #f5d0fe;border-radius:99px;padding:5px 12px;font-size:11px;font-weight:700;color:#c026d3;cursor:pointer;white-space:nowrap;transition:all .15s ease}
+    .ai-chip:hover{background:#fae8ff;border-color:#c026d3}
+
+    .ai-order-btn{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#c026d3,#a21caf);color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;margin-top:6px;font-family:inherit;transition:opacity .15s}
+    .ai-order-btn:hover{opacity:.88}
+
+    @keyframes aiFabPulse{0%,100%{box-shadow:0 4px 18px rgba(192,38,211,.45)}50%{box-shadow:0 4px 28px rgba(192,38,211,.7),0 0 0 8px rgba(192,38,211,.12)}}
+    #fab-ai.pulse{animation:aiFabPulse 2s ease infinite}
+
+    /* ── Chibi boba char ── */
+    .chibi-icon{font-size:22px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.15))}
+
+    /* ── Shopee cat rows ── */
+    .shopee-cat-row+.shopee-cat-row{border-top:1px solid #ffe8e3;padding-top:1.1rem}
+  </style>
+</head>
+<body class="text-gray-800">
+
+<!-- ═══════════════ TOAST ═══════════════ -->
+<div id="toast"></div>
+
+<!-- ═══════════════ FAB: Trợ Lý AI ═══════════════ -->
+<button id="fab-ai" onclick="toggleChatbox()"
+  style="position:fixed;bottom:76px;right:14px;z-index:80;
+    background:linear-gradient(135deg,#c026d3,#a21caf);
+    border:none;border-radius:28px;padding:10px 16px 10px 12px;
+    display:flex;align-items:center;gap:7px;cursor:pointer;
+    box-shadow:0 4px 18px rgba(192,38,211,.45);
+    transition:transform .18s ease,box-shadow .18s ease;
+    font-family: 'Quicksand', sans-serif !important;">
+  <span style="font-size:20px;line-height:1">🤖</span>
+  <span style="color:#fff;font-size:12px;font-weight:800;white-space:nowrap">Hỏi PAT</span>
+</button>
+<a id="fab-zalo" href="https://zalo.me/0909123456" target="_blank" class="fab-btn" style="bottom:136px;right:14px;background:#0068ff" title="Chat Zalo">
+  <span class="text-white font-extrabold text-xs">Zalo</span>
+</a>
+
+<!-- ═══════════════ AI CHATBOX ═══════════════ -->
+<div id="ai-chatbox" style="
+  position:fixed;bottom:134px;right:14px;z-index:85;
+  width:min(360px,calc(100vw - 28px));
+  background:#fff;border-radius:24px;
+  box-shadow:0 12px 48px rgba(192,38,211,.2);
+  display:none;flex-direction:column;overflow:hidden;
+  animation:slideUpChat .25s ease;
+  max-height:min(520px,calc(100vh - 160px));
+">
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#a21caf,#c026d3,#e879f9);padding:12px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <div style="width:38px;height:38px;background:rgba(255,255,255,.22);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🤖</div>
+    <div style="flex:1;min-width:0">
+      <div style="color:#fff;font-weight:800;font-size:14px" id="ai-header-name">Trợ Lý PAT Milk</div>
+      <div style="color:rgba(255,255,255,.8);font-size:11px;display:flex;align-items:center;gap:4px">
+        <span style="width:6px;height:6px;background:#bbf7d0;border-radius:50%;display:inline-block"></span>
+        Đang online • Trả lời ngay 🐾
+      </div>
+    </div>
+    <button onclick="moFormHoiVien()" style="background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35);border-radius:10px;padding:5px 9px;color:#fff;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">⭐ Thẻ VIP</button>
+    <button onclick="toggleChatbox()" style="background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;padding:2px;font-size:16px;flex-shrink:0">✕</button>
+  </div>
+
+  <!-- Messages -->
+  <div id="ai-messages" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;background:#fff9fe;min-height:200px;max-height:280px"></div>
+
+  <!-- Chips -->
+  <div id="ai-chips" style="padding:6px 12px 4px;display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none;background:#fff9fe;flex-shrink:0"></div>
+
+  <!-- Input -->
+  <div style="padding:10px 12px;background:#fff;border-top:1px solid #fae8ff;display:flex;gap:8px;align-items:flex-end;flex-shrink:0">
+    <textarea id="ai-input" rows="1" placeholder="Hỏi về menu, giá, giao hàng... 🧋"
+      style="flex:1;border:1.5px solid #f5d0fe;border-radius:14px;padding:8px 12px;font-size:13px;font-family:inherit;resize:none;outline:none;max-height:80px;overflow-y:auto;line-height:1.4;transition:border-color .15s"
+      onfocus="this.style.borderColor='#c026d3'"
+      onblur="this.style.borderColor='#f5d0fe'"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();guiCauHoi()}"
+      oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+    <button onclick="guiCauHoi()" id="ai-send-btn"
+      style="background:linear-gradient(135deg,#c026d3,#a21caf);border:none;border-radius:12px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL HỘI VIÊN VIP ═══════════════ -->
+<div id="modal-hoi-vien" style="position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(80,0,100,.45);backdrop-filter:blur(4px)">
+  <div style="background:#fff;border-radius:24px;width:min(400px,calc(100vw - 24px));max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(192,38,211,.3);animation:bounceIn .35s ease">
+    <!-- Header VIP -->
+    <div style="background:linear-gradient(135deg,#a21caf,#c026d3,#e879f9);padding:22px;border-radius:24px 24px 0 0;text-align:center;position:relative;overflow:hidden">
+      <div style="font-size:40px;margin-bottom:6px">👑</div>
+      <h2 style="color:#fff;font-weight:900;font-size:18px;margin:0 0 4px;font-family:'Fredoka One',cursive">Thẻ VIP PAT Milk</h2>
+      <p style="color:rgba(255,255,255,.85);font-size:12px;margin:0">Miễn phí • Ưu đãi cực xịn • Tích điểm đổi trà</p>
+    </div>
+
+    <!-- Lợi ích -->
+    <div style="padding:14px 18px 0;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="background:#fdf4ff;border:1px solid #f5d0fe;border-radius:12px;padding:10px;text-align:center">
+        <div style="font-size:20px">🎂</div>
+        <div style="font-size:11px;font-weight:800;color:#a21caf;margin-top:3px">Trà sinh nhật</div>
+      </div>
+      <div style="background:#fdf4ff;border:1px solid #f5d0fe;border-radius:12px;padding:10px;text-align:center">
+        <div style="font-size:20px">🧋</div>
+        <div style="font-size:11px;font-weight:800;color:#a21caf;margin-top:3px">Giảm 10% mỗi ly</div>
+      </div>
+      <div style="background:#fdf4ff;border:1px solid #f5d0fe;border-radius:12px;padding:10px;text-align:center">
+        <div style="font-size:20px">⚡</div>
+        <div style="font-size:11px;font-weight:800;color:#a21caf;margin-top:3px">Ưu tiên Flash sale</div>
+      </div>
+      <div style="background:#fdf4ff;border:1px solid #f5d0fe;border-radius:12px;padding:10px;text-align:center">
+        <div style="font-size:20px">🎁</div>
+        <div style="font-size:11px;font-weight:800;color:#a21caf;margin-top:3px">Tích điểm đổi trà</div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div style="padding:16px 18px 20px" id="hv-form-wrap">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div>
+          <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:4px">👤 Họ và tên *</label>
+          <input id="hv-ten" type="text" placeholder="Bạn tên gì nè 🥰" class="inp" style="width:100%;border:1.5px solid #e5e7eb;border-radius:12px;padding:9px 12px;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:4px">📱 Số điện thoại *</label>
+          <input id="hv-sdt" type="tel" placeholder="0909 123 456" class="inp" style="width:100%;border:1.5px solid #e5e7eb;border-radius:12px;padding:9px 12px;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
+            <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:4px">🎂 Ngày sinh</label>
+            <input id="hv-ngaysinh" type="date" class="inp" style="width:100%;border:1.5px solid #e5e7eb;border-radius:12px;padding:9px 12px;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:4px">🐾 Giới tính</label>
+            <select id="hv-gioitinh" class="inp" style="width:100%;border:1.5px solid #e5e7eb;border-radius:12px;padding:9px 12px;font-size:13px;font-family:inherit;box-sizing:border-box;background:#fff">
+              <option value="">-- Chọn --</option>
+              <option value="Nữ">Nữ</option>
+              <option value="Nam">Nam</option>
+              <option value="Khác">Khác</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:4px">📍 Địa chỉ</label>
+          <input id="hv-diachi" type="text" placeholder="Để tụi mình ship đến tận nơi 🛵" class="inp" style="width:100%;border:1.5px solid #e5e7eb;border-radius:12px;padding:9px 12px;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button onclick="dongModalHoiVien()" style="flex:1;background:#f3f4f6;border:none;border-radius:14px;padding:12px;font-size:14px;font-weight:600;color:#9ca3af;cursor:pointer;font-family:inherit">Để sau</button>
+        <button onclick="dangKyHoiVien()" id="hv-btn-submit" style="flex:2;background:linear-gradient(135deg,#c026d3,#a21caf);border:none;border-radius:14px;padding:12px;font-size:14px;font-weight:800;color:#fff;cursor:pointer;font-family:inherit">
+          👑 Đăng Ký VIP Ngay
+        </button>
+      </div>
+    </div>
+
+    <!-- Success -->
+    <div id="hv-success" style="display:none;padding:30px 20px;text-align:center">
+      <div style="font-size:50px;margin-bottom:12px">🎉</div>
+      <h3 style="font-weight:900;color:#a21caf;font-size:18px;margin:0 0 6px;font-family:'Fredoka One',cursive">Welcome VIP Member!</h3>
+      <p id="hv-success-msg" style="color:#6b7280;font-size:13px;margin:0 0 20px;line-height:1.5"></p>
+      <button onclick="dongModalHoiVien()" style="background:linear-gradient(135deg,#c026d3,#a21caf);color:#fff;border:none;border-radius:14px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Đóng lại</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ OVERLAY ═══════════════ -->
+<div id="overlay" onclick="dongDrawer()"></div>
+
+<!-- ═══════════════ DRAWER GIỎ HÀNG ═══════════════ -->
+<div id="gio-hang-drawer" role="dialog" aria-label="Giỏ hàng">
+  <!-- Header drawer -->
+  <div style="background:linear-gradient(135deg,#a21caf,#c026d3);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:20px">🛒</span>
+      <span style="color:#fff;font-weight:800;font-size:16px;font-family:'Fredoka One',cursive">Ly của bạn</span>
+      <span id="drawer-badge" style="background:#ffd96b;color:#7c3800;font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px">0</span>
+    </div>
+    <button onclick="dongDrawer()" style="background:rgba(255,255,255,.2);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:16px">✕</button>
+  </div>
+
+  <!-- List -->
+  <div id="drawer-list" class="flex-1 overflow-y-auto p-3 space-y-2.5">
+    <div id="gio-rong" class="text-center py-14 text-gray-400">
+      <div style="font-size:48px;margin-bottom:8px">🧋</div>
+      <p class="font-bold">Chưa có ly nào!</p>
+      <p class="text-sm mt-1">Chọn đồ uống yêu thích nhé 😊</p>
+    </div>
+  </div>
+
+  <!-- Form đặt hàng -->
+  <div class="border-t p-4 space-y-2.5 flex-shrink-0" style="background:#fdf4ff;border-color:#f5d0fe">
+    <div class="flex justify-between items-center">
+      <span class="font-bold text-gray-600 text-sm">Tổng cộng:</span>
+      <span id="tong-tien-text" class="text-xl font-extrabold" style="color:#a21caf">0đ</span>
+    </div>
+    <input id="inp-ten" type="text" placeholder="👤 Họ và tên *" class="inp w-full border rounded-2xl px-3 py-2.5 text-sm bg-white" style="border-color:#e5e7eb"/>
+    <input id="inp-sdt" type="tel" placeholder="📞 Số điện thoại *" class="inp w-full border rounded-2xl px-3 py-2.5 text-sm bg-white" style="border-color:#e5e7eb" oninput="if(phuongThucTT==='Chuyển khoản') capNhatQR()"/>
+    <textarea id="inp-dc" rows="2" placeholder="📍 Địa chỉ nhận hàng *" class="inp w-full border rounded-2xl px-3 py-2.5 text-sm bg-white resize-none" style="border-color:#e5e7eb"></textarea>
+
+    <!-- Ghi chú -->
+    <textarea id="inp-note" rows="1" placeholder="📝 Ghi chú (đường ít, ít đá...)" class="inp w-full border rounded-2xl px-3 py-2.5 text-sm bg-white resize-none" style="border-color:#e5e7eb"></textarea>
+
+    <!-- Thanh toán -->
+    <div>
+      <p class="text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wide">💳 Thanh toán</p>
+      <div class="flex gap-2">
+        <label class="flex-1 flex items-center gap-1.5 rounded-2xl px-2.5 py-2 cursor-pointer text-sm font-medium border-2" style="border-color:#f5d0fe;background:#fdf4ff">
+          <input type="radio" name="tt" value="COD" checked class="accent-purple-600" onchange="doiTT(this.value)"/>
+          💵 COD
+        </label>
+        <label class="flex-1 flex items-center gap-1.5 border-2 border-gray-200 rounded-2xl px-2.5 py-2 cursor-pointer text-sm font-medium">
+          <input type="radio" name="tt" value="Chuyển khoản" class="accent-purple-600" onchange="doiTT(this.value)"/>
+          🏦 Chuyển khoản
+        </label>
+      </div>
+    </div>
+
+    <!-- CK box -->
+    <div id="ck-box" class="hidden bg-purple-50 border border-purple-200 rounded-2xl p-3 text-sm">
+      <p class="font-bold text-purple-800 mb-1.5">📋 Thông tin chuyển khoản:</p>
+      <div class="space-y-0.5 text-purple-700">
+        <p>🏦 NH: <strong id="ck-ngan-hang"></strong></p>
+        <p>💳 STK: <strong id="ck-so-tk"></strong></p>
+        <p>👤 CTK: <strong id="ck-ten-tk"></strong></p>
+        <p>📝 ND: <span id="ck-nd-preview" class="font-semibold text-purple-800 bg-purple-100 px-1.5 py-0.5 rounded-md text-xs break-all"></span></p>
+      </div>
+      <div class="mt-3 text-center">
+        <div class="flex items-center justify-between bg-white border border-purple-200 rounded-xl px-3 py-2 mb-2.5">
+          <div class="text-left">
+            <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wide">Mã đơn</p>
+            <p id="ck-ma-don" class="text-xs font-extrabold text-purple-800 font-mono">#--</p>
+          </div>
+          <div class="text-right">
+            <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wide">Số tiền</p>
+            <p id="ck-so-tien" class="text-sm font-extrabold" style="color:#a21caf">0đ</p>
+          </div>
+        </div>
+        <div class="relative inline-block">
+          <img id="ck-qr" src="" alt="QR Code" class="mx-auto rounded-2xl w-36 h-36 shadow-md border-2 border-purple-100"/>
+          <div id="ck-qr-overlay" class="absolute inset-0 flex items-center justify-center bg-white/80 rounded-2xl text-xs text-gray-400 font-medium hidden">Thêm sản phẩm<br/>để hiện QR</div>
+        </div>
+        <p class="text-[11px] text-gray-400 mt-1.5 font-medium">📲 Quét để chuyển khoản tự điền</p>
+      </div>
+    </div>
+
+    <button id="btn-dat-hang" onclick="datHang()"
+      class="w-full text-white font-bold py-3 rounded-2xl transition-all text-sm flex items-center justify-center gap-2 shadow-md"
+      style="background:linear-gradient(135deg,#c026d3,#a21caf)">
+      🧋 Đặt Ly Ngay
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL THÀNH CÔNG ═══════════════ -->
+<div id="modal-ok">
+  <div class="bg-white rounded-3xl p-7 mx-4 max-w-xs w-full text-center shadow-2xl" style="animation:bounceIn .4s ease">
+    <div style="font-size:50px;margin-bottom:8px">💖💖💖</div>
+    <h2 class="text-lg font-extrabold mb-1" style="color:#a21caf;font-family:'Fredoka One',cursive">Order thành công!</h2>
+    <p id="modal-ma-don" class="text-xs text-gray-400 mb-3"></p>
+    <p id="modal-cam-on" class="text-sm text-gray-600 mb-5 leading-relaxed"></p>
+    <div class="flex gap-2.5">
+      <a id="modal-goi" href="tel:0909123456" class="flex-1 font-semibold py-2.5 rounded-2xl text-sm border" style="background:#fdf4ff;color:#a21caf;border-color:#f5d0fe">📞 Gọi ngay</a>
+      <button onclick="dongModal()" class="flex-1 text-white font-semibold py-2.5 rounded-2xl text-sm" style="background:linear-gradient(135deg,#c026d3,#a21caf)">Tiếp tục</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="header-sticky">
+  <div class="max-w-6xl mx-auto px-3 py-2.5 flex items-center justify-between gap-2.5">
+    <!-- Logo -->
+    <div class="flex items-center gap-2.5 flex-shrink-0">
+      <img id="header-logo" src="https://placehold.co/40x40/c026d3/fff?text=🧋" alt="Logo" class="w-10 h-10 rounded-2xl object-cover shadow"/>
+      <div>
+        <div id="header-ten" class="font-extrabold text-sm leading-tight" style="color:#a21caf;font-family:'Fredoka One',cursive">PAT Milk</div>
+        <div id="header-slogan" class="text-[10px] font-semibold" style="color:#d946ef">Boba • Milk Tea • Love 🧋</div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="flex-1 max-w-xs">
+      <div class="relative">
+        <input id="inp-search" type="search" placeholder="🔍 Tìm đồ uống..."
+          class="w-full pl-8 pr-3 py-2 border border-purple-100 rounded-2xl text-sm bg-purple-50/60 focus:bg-white outline-none transition-all inp"
+          oninput="timKiem(this.value)"/>
+        <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2" style="color:#d946ef" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </div>
+    </div>
+
+    <!-- Cart -->
+    <button onclick="moDrawer()" class="relative p-2 rounded-2xl border flex-shrink-0 transition-colors" style="background:#fdf4ff;border-color:#f5d0fe">
+      <svg class="w-5 h-5" style="color:#a21caf" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+      <span id="header-badge" class="cart-badge absolute -top-1 -right-1 text-white text-[10px] font-bold min-w-[17px] h-[17px] rounded-full flex items-center justify-center hidden" style="background:#c026d3">0</span>
+    </button>
+  </div>
+</header>
+
+<!-- ═══════════════ HERO BANNER ═══════════════ -->
+<section id="hero-section" class="relative overflow-hidden">
+  <!-- Bubble decorations -->
+  <div class="bubble-deco" style="width:80px;height:80px;top:10%;left:5%;animation-delay:0s"></div>
+  <div class="bubble-deco" style="width:50px;height:50px;top:50%;left:20%;animation-delay:1.5s"></div>
+  <div class="bubble-deco" style="width:100px;height:100px;top:5%;right:15%;animation-delay:3s"></div>
+  <div class="bubble-deco" style="width:60px;height:60px;bottom:10%;right:5%;animation-delay:2s"></div>
+
+  <img id="hero-bg" src="" alt="" class="absolute inset-0 w-full h-full object-cover opacity-25 hidden"/>
+
+  <div class="relative z-10 max-w-6xl mx-auto px-4 py-10">
+    <div class="flex items-center justify-between gap-6">
+      <div class="flex-1">
+        <!-- Badge giờ -->
+        <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:5px 14px;margin-bottom:12px">
+          <span style="width:7px;height:7px;background:#bbf7d0;border-radius:50%;display:inline-block"></span>
+          <span style="color:#fff;font-size:12px;font-weight:700">Mở cửa <span id="hero-gio" class="font-extrabold">9:00 – 22:00</span></span>
+        </div>
+
+        <h1 style="font-family: 'Quicksand', sans-serif !important;font-weight: 700;font-size:clamp(24px,5vw,38px);color:#fff;line-height:1.15;margin-bottom:8px;text-shadow:0 2px 12px rgba(0,0,0,.2)">
+          <span id="hero-ten">PAT Milk</span><br/>
+          <span id="hero-slogan" style="color:#fae8ff;font-size:.7em">Boba • Milk Tea • Love ✨</span>
+        </h1>
+
+        <p id="hero-mo-ta" class="text-sm mb-4" style="color:rgba(255,255,255,.85);max-width:380px">Trà sữa chibi siêu cute – Giao hàng tận nơi – Uống là ghiền!</p>
+
+        <div class="flex flex-wrap gap-2 text-xs">
+          <span style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 14px;border-radius:99px">🛵 Ship nhanh 30 phút</span>
+          <span style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 14px;border-radius:99px">💎 100% nguyên liệu xịn</span>
+          <span style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 14px;border-radius:99px">✨ Không chất bảo quản</span>
+        </div>
+      </div>
+      <img id="hero-logo" src="" alt="PAT Milk" class="w-24 h-24 rounded-3xl object-cover shadow-2xl border-3 border-white/30 hidden sm:block" style="border-width:3px"/>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ PROMO BANNERS ═══════════════ -->
+<section id="promo-section" class="max-w-6xl mx-auto px-3 pt-4 pb-1 hidden">
+  <div id="promo-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+</section>
+
+<!-- ═══════════════ CATEGORY TABS ═══════════════ -->
+<div class="sticky top-[57px] z-40 bg-white/95 border-b" style="backdrop-filter:blur(12px);border-color:#fae8ff;box-shadow:0 2px 12px rgba(192,38,211,.07)">
+  <div class="max-w-6xl mx-auto px-3">
+    <div id="dm-tabs" class="flex scroll-x"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN PRODUCT AREA ═══════════════ -->
+<main class="max-w-6xl mx-auto px-3 py-5">
+  <div class="flex items-center justify-between mb-3">
+    <p id="ket-qua" class="text-sm text-gray-400 font-semibold">Đang tải menu...</p>
+    <button onclick="taiLai()" class="text-xs font-bold flex items-center gap-1" style="color:#c026d3">
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      Làm mới
+    </button>
+  </div>
+
+  <!-- Grid đồ uống -->
+  <div id="luoi-sp" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+    <div class="skel h-56 rounded-2xl"></div><div class="skel h-56 rounded-2xl"></div>
+    <div class="skel h-56 rounded-2xl"></div><div class="skel h-56 rounded-2xl"></div>
+    <div class="skel h-56 rounded-2xl hidden sm:block"></div>
+  </div>
+
+  <!-- Không có kết quả -->
+  <div id="khong-co" class="hidden text-center py-16">
+    <div style="font-size:50px;margin-bottom:8px">🔍</div>
+    <p class="text-lg font-bold text-gray-400">Không tìm thấy đồ uống</p>
+    <p class="text-sm text-gray-300 mt-1">Thử từ khóa khác nhé bạn ơi!</p>
+  </div>
+
+  <!-- ═══════════ SHOPEE SECTION ═══════════ -->
+  <div id="shopee-section" class="mt-10 shopee-section-wrap p-5 hidden">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-md flex-shrink-0" style="background:#ee4d2d">
+          <svg viewBox="0 0 32 32" class="w-5 h-5" fill="white"><path d="M16 2C8.268 2 2 8.268 2 16s6.268 14 14 14 14-6.268 14-14S23.732 2 16 2zm0 4a4 4 0 110 8 4 4 0 010-8zm7 16H9a1 1 0 01-.958-1.286l1-3A1 1 0 0110 17h12a1 1 0 01.958.714l1 3A1 1 0 0123 22z"/></svg>
+        </div>
+        <div>
+          <h2 class="font-extrabold text-lg leading-tight section-title" style="color:#ee4d2d;font-family:'Fredoka One',cursive">Gian Hàng Shopee</h2>
+          <p class="text-xs text-gray-400 font-medium">Không vừa ý - trả hàng miễn phí</p>
+        </div>
+      </div>
+      <a id="shopee-store-link" href="#" target="_blank"
+        class="hidden sm:flex items-center gap-1.5 text-white text-xs font-bold px-3 py-2 rounded-xl shadow-sm"
+        style="background:#ee4d2d">
+        Xem Shop →
+      </a>
+    </div>
+    <div id="shopee-grid" class="space-y-5"></div>
+    <div id="shopee-more-wrap" class="hidden mt-4 text-center">
+      <button id="shopee-more-btn" onclick="toggleShopeeMore()"
+        class="inline-flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-2xl border transition-all"
+        style="background:#fff5f3;color:#ee4d2d;border-color:#ffd5cc">
+        <span id="shopee-more-label">Xem thêm</span>
+        <svg id="shopee-more-icon" class="w-4 h-4 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+      </button>
+    </div>
+  </div>
+</main>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer style="background:linear-gradient(135deg,#701a75,#a21caf,#c026d3);margin-top:48px;padding:36px 16px">
+  <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-7 text-sm">
+    <div>
+      <div class="flex items-center gap-2.5 mb-3">
+        <img id="footer-logo" src="" alt="" class="w-9 h-9 rounded-2xl object-cover hidden"/>
+        <span class="font-extrabold text-lg" id="footer-ten" style="color:#fff;font-family:'Fredoka One',cursive">PAT Milk</span>
+      </div>
+      <p id="footer-mo-ta" style="color:rgba(255,255,255,.75);font-size:13px;line-height:1.6">Trà sữa chibi siêu cute – Nguyên liệu tươi sạch – Giao hàng tận nơi.</p>
+    </div>
+    <div>
+      <h3 class="font-bold mb-3" style="color:#fde8ff">📞 Liên hệ</h3>
+      <div class="space-y-1.5 text-sm" style="color:rgba(255,255,255,.75)">
+        <p>🏠 <span id="footer-dc">Đang tải...</span></p>
+        <p>📱 Hotline: <a id="footer-hotline" href="tel:" style="color:#ffd96b;font-weight:700" class="hover:underline"></a></p>
+        <p>💬 Zalo: <a id="footer-zalo" href="#" style="color:#ffd96b" class="hover:underline"></a></p>
+        <p>🕗 Giờ: <span id="footer-gio"></span></p>
+      </div>
+    </div>
+    <div>
+      <h3 class="font-bold mb-3" style="color:#fde8ff">🚀 Cam kết</h3>
+      <div class="space-y-1.5 text-sm" style="color:rgba(255,255,255,.75)">
+        <p>✅ Ship trong 30 phút (trong 3km)</p>
+        <p>✅ Miễn phí ship đơn từ 100.000đ</p>
+        <p>✅ Đổi trả nếu ly không đúng</p>
+        <p>✅ COD hoặc chuyển khoản</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map -->
+  <div class="max-w-6xl mx-auto mt-8 pt-7" style="border-top:1px solid rgba(255,255,255,.15)">
+    <div class="flex items-center gap-2 mb-3">
+      <svg class="w-4 h-4 flex-shrink-0" style="color:#ffd96b" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      <span style="color:#ffd96b;font-weight:700;font-size:13px">Ghé quán nè</span>
+      <span style="color:rgba(255,255,255,.5);font-size:12px" id="footer-dc-map"></span>
+    </div>
+    <div class="relative rounded-2xl overflow-hidden shadow-lg" style="height:200px;background:#5c1140">
+      <div id="map-placeholder" class="absolute inset-0 flex flex-col items-center justify-center gap-3" style="color:rgba(255,255,255,.5)">
+        <svg class="w-8 h-8 animate-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        <span style="font-size:12px">Đang tải bản đồ...</span>
+      </div>
+      <iframe id="footer-map" style="border:0;width:100%;height:100%;opacity:0;transition:opacity .4s ease" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="about:blank"></iframe>
+    </div>
+    <a id="footer-map-link" href="#" target="_blank" class="mt-2 inline-flex items-center gap-1.5 text-xs font-medium hover:underline" style="color:rgba(255,255,255,.55)">
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+      Mở Google Maps
+    </a>
+  </div>
+
+  <div class="text-center text-xs mt-7 pt-5" style="border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.45)">
+    © <span id="footer-nam">2025</span> <span id="footer-ten-copy">PAT Milk</span>. Trà sữa chuẩn gu giới trẻ ❤️
+  </div>
+</footer>
+
+<!-- ════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════ -->
+<script>
+/* ── CẤU HÌNH ── */
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxVPlL-_TeVBNy6bwwT9NoeLBlMVDgTPeZx70lb1Z6E3werhizmyIbB_Nx4E4OKjt7C/exec";
+
+/* ── STATE ── */
+let tatCaSP       = [];
+let spHienThi     = [];
+let gioHang       = [];
+let cuaHang       = {};
+let shopeeItems   = [];
+let suKienItems   = [];
+let dmHienTai     = "Tất cả";
+let tuKhoa        = "";
+let phuongThucTT  = "COD";
+
+/* ── KHỞI ĐỘNG ── */
+async function khoiDong() {
+  const footerNam = document.getElementById("footer-nam");
+  if (footerNam) footerNam.textContent = new Date().getFullYear();
+  await taiDuLieu();
+}
+
+/* ── TẢI DỮ LIỆU ── */
+async function taiDuLieu() {
+  try {
+    hienSkeleton();
+    let json;
+
+    if (APPS_SCRIPT_URL.includes("ĐẶT_URL")) {
+      await new Promise(r => setTimeout(r, 900));
+      json = { success:true, cuaHang:duLieuMauCH(), sanPham:duLieuMauSP(), shopee:duLieuMauShopee(), suKien:duLieuMauSuKien() };
+      hienToast("⚠️ Demo mode – Chưa kết nối Sheet thật", 3500);
+    } else {
+      const res = await fetch(APPS_SCRIPT_URL, { method:"GET", redirect:"follow" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      json = await res.json();
+      if (!json.success) throw new Error(json.message);
+    }
+
+    cuaHang     = json.cuaHang   || {};
+    tatCaSP     = (json.sanPham  || []).filter(sp => sp["Tên sản phẩm"] && String(sp["Tên sản phẩm"]).trim() !== "");
+    shopeeItems = json.shopee    || [];
+    suKienItems = (json.suKien   || []).filter(sk => sk["Tiêu đề"] && String(sk["Trạng thái"]).trim() !== "Đã kết thúc");
+
+    apDungCuaHang();
+    renderDanhMuc();
+    locVaRender();
+    renderShopee();
+    renderPromoBanner();
+
+  } catch(err) {
+    console.error("❌ Lỗi tải dữ liệu:", err);
+    hienTrangLoi();
+  }
+}
+
+function taiLai() { hienToast("🔄 Đang làm mới..."); taiDuLieu(); }
+
+/* ── ÁP DỤNG THÔNG TIN CỬA HÀNG ── */
+function apDungCuaHang() {
+  const ch = cuaHang;
+  const ten      = ch["Tên cửa hàng"]  || "PAT Milk";
+  const slogan   = ch["Slogan"]        || "Boba • Milk Tea • Love ✨";
+  const dc       = ch["Địa chỉ"]       || "";
+  const sdt      = ch["Số điện thoại"] || "";
+  const zalo     = ch["Zalo"]          || sdt;
+  const gio      = ch["Giờ mở cửa"]    || "9:00 – 22:00";
+  const logoUrl  = ch["Logo URL"]      || "";
+  const bannerUrl= ch["Hero Banner URL"]|| "";
+  const moTa     = ch["Mô tả ngắn"]    || "";
+  const shopeeStore = ch["Shopee Store"]|| "#";
+
+  document.title = ten + " – " + slogan;
+
+  setText("header-ten", ten);
+  setText("header-slogan", slogan);
+  setAttr("header-logo","src", logoUrl || "https://placehold.co/40x40/c026d3/fff?text=🧋");
+  setAttr("header-logo","alt", ten);
+
+  setText("hero-ten", ten);
+  setText("hero-slogan", slogan);
+  setText("hero-mo-ta", moTa);
+  setText("hero-gio", gio);
+
+  if (bannerUrl) { const bg=document.getElementById("hero-bg"); if(bg){bg.src=bannerUrl;bg.classList.remove("hidden");} }
+  if (logoUrl)   { const hl=document.getElementById("hero-logo"); if(hl){hl.src=logoUrl;hl.alt=ten;hl.classList.remove("hidden");} }
+
+  const fabZalo=document.getElementById("fab-zalo");
+  if (sdt && fabZalo) fabZalo.href="https://zalo.me/"+zalo;
+
+  setText("footer-ten", ten);
+  setText("footer-ten-copy", ten);
+  setText("footer-mo-ta", moTa || ch["Mô tả ngắn"] || "");
+  setText("footer-dc", dc);
+  const hl=document.getElementById("footer-hotline"); if(hl){hl.href="tel:"+sdt;hl.textContent=sdt;}
+  const zl=document.getElementById("footer-zalo"); if(zl){zl.href="https://zalo.me/"+zalo;zl.textContent=zalo;}
+  setText("footer-gio", gio);
+  if (logoUrl) { const fl=document.getElementById("footer-logo"); if(fl){fl.src=logoUrl;fl.alt=ten;fl.classList.remove("hidden");} }
+
+  capNhatMap(dc, ten);
+
+  const ssl=document.getElementById("shopee-store-link"); if(ssl) ssl.href=shopeeStore;
+  setText("ck-ngan-hang", ch["Tên ngân hàng"]||"");
+  setText("ck-so-tk", ch["Số tài khoản"]||"");
+  setText("ck-ten-tk", ch["Tên chủ TK"]||"");
+  capNhatQR();
+
+  setText("modal-cam-on", "Cảm ơn bạn đã order tại "+ten+"! Tụi mình sẽ giao đến bạn sớm nhất nha - chờ mình gọi nhé!📞");
+  setAttr("modal-goi","href","tel:"+sdt);
+}
+
+/* ── RENDER PROMO BANNERS (thay thế SuKien WinMart style) ── */
+function renderPromoBanner() {
+  const section = document.getElementById("promo-section");
+  const grid    = document.getElementById("promo-grid");
+  if (!grid) return;
+
+  const items = suKienItems.length ? suKienItems : duLieuMauSuKien();
+  if (!items.length) { if(section) section.classList.add("hidden"); return; }
+  if (section) section.classList.remove("hidden");
+
+  const configs = [
+    { bg:"linear-gradient(135deg,#a21caf,#c026d3,#e879f9)", emoji:"🎉" },
+    { bg:"linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)", emoji:"⚡" },
+    { bg:"linear-gradient(135deg,#b45309,#d97706,#fbbf24)", emoji:"🎁" },
+    { bg:"linear-gradient(135deg,#059669,#10b981,#34d399)", emoji:"🏅" },
+  ];
+
+  const visible = items.slice(0, 2);
+  grid.innerHTML = visible.map((sk, i) => {
+    const cfg = configs[i % configs.length];
+    const hinh = sk["Hình ảnh"] || "";
+    const link = sk["Liên kết"] || "#";
+    const nhan = sk["Nhãn nổi bật"] || "";
+    const tag  = link && link !== "#" ? `a href="${link}" target="_blank" rel="noopener"` : `div`;
+    const tagC = link && link !== "#" ? `a` : `div`;
+    return `
+    <${tag} class="promo-banner relative overflow-hidden cursor-pointer group" style="animation-delay:${i*.12}s">
+      <div style="background:${cfg.bg};border-radius:20px;padding:18px 20px;min-height:100px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden">
+        <!-- Bubble decorations -->
+        <div style="position:absolute;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.1);top:-20px;right:-20px"></div>
+        <div style="position:absolute;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.08);bottom:-10px;right:60px"></div>
+        <!-- Icon -->
+        <div style="font-size:36px;flex-shrink:0;filter:drop-shadow(0 2px 8px rgba(0,0,0,.2));transform:rotate(-5deg)">${hinh ? '' : cfg.emoji}</div>
+        <!-- Text -->
+        <div style="flex:1;min-width:0">
+          ${nhan ? `<div style="display:inline-block;background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:800;padding:2px 10px;border-radius:99px;margin-bottom:5px;letter-spacing:.4px">${nhan}</div>` : ''}
+          <div style="color:#fff;font-weight:800;font-size:15px;font-family:'Fredoka One',cursive;line-height:1.2;margin-bottom:3px">${sk["Tiêu đề"]||""}</div>
+          ${sk["Mô tả"] ? `<div style="color:rgba(255,255,255,.8);font-size:11px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${sk["Mô tả"]}</div>` : ''}
+          ${sk["Ngày kết thúc"] ? `<div style="color:rgba(255,255,255,.7);font-size:10px;margin-top:4px;font-weight:600">⏰ HSD: ${sk["Ngày kết thúc"]}</div>` : ''}
+        </div>
+        ${link && link !== "#" ? `<div style="background:rgba(255,255,255,.25);color:#fff;font-size:11px;font-weight:700;padding:6px 12px;border-radius:99px;flex-shrink:0;white-space:nowrap">Xem →</div>` : ''}
+      </div>
+    </${tagC}>`;
+  }).join("");
+}
+
+/* ── RENDER DANH MỤC TABS ── */
+function renderDanhMuc() {
+  const dmsRaw = tatCaSP.map(sp => sp["Danh mục"] ? String(sp["Danh mục"]).trim() : "Khác");
+  const dms = ["Tất cả", ...new Set(dmsRaw.filter(Boolean))];
+  const el = document.getElementById("dm-tabs");
+  if (!el) return;
+  el.innerHTML = dms.map(dm => `
+    <button class="dm-tab px-3.5 py-3 text-sm font-semibold text-gray-500 hover:text-purple-600 flex-shrink-0 ${dm.toLowerCase()===dmHienTai.toLowerCase()?'active':''}"
+      onclick="chonDM('${esc(dm)}',this)">
+      ${iconDM(dm)} ${dm}
+    </button>`).join("");
+}
+
+function iconDM(dm) {
+  const n = String(dm).toLowerCase().trim();
+  if (n.includes("tất cả"))     return "📋";
+  if (n.includes("trà sữa"))    return "🍵";
+  if (n.includes("trà trái cây")||n.includes("trái cây")) return "🍓";
+  if (n.includes("matcha"))     return "🍃";
+  if (n.includes("soda"))       return "🥤";
+  if (n.includes("smoothie")||n.includes("sinh tố")) return "🥭";
+  if (n.includes("cà phê"))     return "☕";
+  if (n.includes("topping"))    return "✨";
+  if (n.includes("combo"))      return "🎁";
+  return "🫙";
+}
+
+function chonDM(dm, btn) {
+  dmHienTai = dm;
+  document.querySelectorAll(".dm-tab").forEach(t => t.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  locVaRender();
+}
+
+/* ── TÌM KIẾM ── */
+function timKiem(v) { tuKhoa = v.toLowerCase().trim(); locVaRender(); }
+
+/* ── LỌC + RENDER ── */
+function locVaRender() {
+  spHienThi = tatCaSP.filter(sp => {
+    const dmSp = sp["Danh mục"] ? String(sp["Danh mục"]).trim() : "Khác";
+    const okDM = dmHienTai === "Tất cả" || dmSp.toLowerCase() === dmHienTai.toLowerCase();
+    const okTK = !tuKhoa || (sp["Tên sản phẩm"]||"").toLowerCase().includes(tuKhoa);
+    return okDM && okTK;
+  });
+  renderLuoi();
+  setText("ket-qua",
+    tuKhoa ? `Tìm thấy ${spHienThi.length} ly cho "${tuKhoa}"` :
+    dmHienTai !== "Tất cả" ? `${spHienThi.length} loại trong "${dmHienTai}"` :
+    `${spHienThi.length} loại đồ uống`
+  );
+}
+
+/* ── RENDER LƯỚI ĐỒ UỐNG ── */
+function renderLuoi() {
+  const el = document.getElementById("luoi-sp");
+  const kc = document.getElementById("khong-co");
+  if (!el) return;
+  if (!spHienThi.length) {
+    el.innerHTML = "";
+    if (kc) kc.classList.remove("hidden");
+    return;
+  }
+  if (kc) kc.classList.add("hidden");
+
+  el.innerHTML = spHienThi.map((sp, i) => {
+    const conHang = String(sp["Trạng thái"]).toLowerCase().trim() !== "hết hàng";
+    const gia     = fTien(sp["Giá bán"]);
+    const tenSp   = sp["Tên sản phẩm"] ? String(sp["Tên sản phẩm"]).trim() : "Sản phẩm";
+    const dvt     = sp["Đơn vị tính"] ? String(sp["Đơn vị tính"]).trim() : "Ly";
+    const dm      = sp["Danh mục"] ? String(sp["Danh mục"]).trim() : "";
+    const hinhAnh = sp["Link hình ảnh"] || "https://placehold.co/300x300/fdf4ff/c026d3?text=🧋";
+    const globalIndex = tatCaSP.indexOf(sp);
+
+    // Lấy thông tin size từ đơn vị tính
+    const sizeInfo = getSizeInfo(dvt);
+
+    return `
+    <div class="drink-card bg-white rounded-3xl overflow-hidden border flex flex-col relative" style="border-color:#fae8ff;animation-delay:${i*35}ms;box-shadow:0 2px 12px rgba(192,38,211,.07)">
+      <!-- Ảnh -->
+      <div class="relative overflow-hidden bg-purple-50" style="aspect-ratio:1/1">
+        <img src="${hinhAnh}" alt="${tenSp}"
+          class="w-full h-full object-cover transition-transform duration-300 hover:scale-108"
+          style="transition:transform .3s ease"
+          loading="lazy"
+          onerror="this.src='https://placehold.co/300x300/fdf4ff/c026d3?text=🧋'"/>
+        ${!conHang?`<div class="het-hang-overlay flex items-center justify-center"><span style="background:#7c3aed;color:#fff" class="text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10 relative">Hết hàng</span></div>`:''}
+        <!-- Danh mục badge -->
+        ${dm ? `<span class="absolute top-2 left-2 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow z-10" style="background:linear-gradient(135deg,#c026d3,#a21caf)">${dm}</span>` : ''}
+        <!-- Size badge nếu có -->
+        ${sizeInfo ? `<span class="absolute top-2 right-2 size-tag z-10" style="background:${sizeInfo.bg};color:${sizeInfo.color}">${sizeInfo.label}</span>` : ''}
+      </div>
+      <!-- Info -->
+      <div class="p-3 flex flex-col flex-1">
+        <h3 class="text-xs sm:text-sm font-bold text-gray-800 leading-snug mb-1.5 flex-1 line-clamp-2">${tenSp}</h3>
+        <div class="flex items-baseline gap-1 mb-2.5">
+          <span class="font-extrabold text-sm" style="color:#a21caf">${gia}</span>
+          <span class="text-gray-400 text-xs">/${dvt}</span>
+        </div>
+        ${conHang
+          ? `<button onclick="clickThemGio(${globalIndex})"
+              class="w-full text-white text-xs font-bold py-2 rounded-2xl flex items-center justify-center gap-1 transition-all active:scale-95"
+              style="background:linear-gradient(135deg,#c026d3,#a21caf);box-shadow:0 2px 8px rgba(192,38,211,.3)">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+              Thêm vào ly
+            </button>`
+          : `<button disabled class="w-full bg-gray-100 text-gray-400 text-xs font-bold py-2 rounded-2xl cursor-not-allowed">Hết hàng</button>`
+        }
+      </div>
+    </div>`;
+  }).join("");
+}
+
+/* ── Size info helper ── */
+function getSizeInfo(dvt) {
+  const v = String(dvt||"").toLowerCase();
+  if (v.includes(" s") || v === "s") return { label:"S", bg:"#fae8ff", color:"#a21caf" };
+  if (v.includes(" m") || v === "m") return { label:"M", bg:"#fde68a", color:"#92400e" };
+  if (v.includes(" l") || v === "l") return { label:"L", bg:"#bbf7d0", color:"#065f46" };
+  return null;
+}
+
+/* ── SHOPEE ── */
+const SHOPEE_PREVIEW = 8;
+let shopeeExpanded = false;
+
+function renderShopee() {
+  const section = document.getElementById("shopee-section");
+  const grid    = document.getElementById("shopee-grid");
+  const moreWrap= document.getElementById("shopee-more-wrap");
+  if (!grid) return;
+  if (!shopeeItems.length) { if(section) section.classList.add("hidden"); return; }
+  if (section) section.classList.remove("hidden");
+
+  const total = shopeeItems.length;
+  setText("shopee-count", total + " sản phẩm");
+  const needMore = total > SHOPEE_PREVIEW;
+
+  const groups = {};
+  shopeeItems.forEach(item => {
+    const cat = (item["Danh mục"] || item["Category"] || "").trim() || "_all";
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push(item);
+  });
+  const allCats = Object.keys(groups);
+  const hasCats = !(allCats.length === 1 && allCats[0] === "_all");
+
+  if (hasCats) {
+    grid.innerHTML = allCats.map(cat => {
+      const items = groups[cat];
+      return `
+      <div class="shopee-cat-row">
+        <div class="flex items-center justify-between mb-2 px-0.5">
+          <span class="text-sm font-bold flex items-center gap-1.5" style="color:#ee4d2d">
+            <span class="w-2 h-2 rounded-full inline-block" style="background:#ee4d2d"></span>${cat}
+          </span>
+          <span class="text-xs text-gray-400">${items.length} sản phẩm</span>
+        </div>
+        <div class="flex gap-2.5 overflow-x-auto scroll-x pb-1.5">
+          ${items.map(item => shopeeCard(item)).join("")}
+        </div>
+      </div>`;
+    }).join("");
+    if (moreWrap) moreWrap.classList.add("hidden");
+  } else {
+    const visible = shopeeExpanded ? shopeeItems : shopeeItems.slice(0, SHOPEE_PREVIEW);
+    grid.innerHTML = `<div id="shopee-flat-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">${visible.map((item,i) => shopeeCard(item,i)).join("")}</div>`;
+    if (moreWrap) moreWrap.classList.toggle("hidden", !needMore);
+    refreshShopeeMoreBtn();
+  }
+}
+
+function shopeeCard(item, i=0) {
+  const tenSp = item["Tên sản phẩm"] || "";
+  const href  = item["Link Affiliate"] || "#";
+  const img   = item["Hình ảnh"] || "https://placehold.co/300x300/ee4d2d/fff?text=Shopee";
+  return `
+  <a href="${href}" target="_blank" rel="noopener"
+    class="shopee-card bg-white rounded-2xl overflow-hidden border border-orange-100 flex flex-col group shadow-sm flex-shrink-0 w-36 sm:w-44"
+    style="animation-delay:${i*35}ms">
+    <div class="relative overflow-hidden bg-gray-50" style="aspect-ratio:1/1">
+      <img src="${img}" alt="${tenSp}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" onerror="this.src='https://placehold.co/300x300/ee4d2d/fff?text=Shopee'"/>
+      <div class="shopee-ribbon">Shopee</div>
+      <div class="absolute inset-0 group-hover:bg-orange-500/10 transition-all flex items-end justify-center pb-2.5 opacity-0 group-hover:opacity-100">
+        <span class="text-white text-[10px] font-bold px-3 py-1 rounded-full shadow" style="background:#ee4d2d">Mua ngay →</span>
+      </div>
+    </div>
+    <div class="p-2 flex-1 flex flex-col">
+      <h3 class="text-[11px] sm:text-xs font-semibold text-gray-700 leading-snug line-clamp-2 flex-1">${tenSp}</h3>
+      <div class="mt-1.5 flex items-center gap-1" style="color:#ee4d2d">
+        <svg class="w-3 h-3 flex-shrink-0" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16s6.268 14 14 14 14-6.268 14-14S23.732 2 16 2z"/></svg>
+        <span class="text-[10px] font-bold">Xem trên Shopee</span>
+      </div>
+    </div>
+  </a>`;
+}
+
+function toggleShopeeMore() {
+  shopeeExpanded = !shopeeExpanded;
+  renderShopee();
+  if (!shopeeExpanded) document.getElementById("shopee-section")?.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function refreshShopeeMoreBtn() {
+  const label=document.getElementById("shopee-more-label");
+  const icon =document.getElementById("shopee-more-icon");
+  if (label) label.textContent = shopeeExpanded ? "Thu gọn" : `Xem thêm (${shopeeItems.length-SHOPEE_PREVIEW}+)`;
+  if (icon)  icon.style.transform = shopeeExpanded ? "rotate(180deg)" : "rotate(0deg)";
+}
+
+/* ── GIỎ HÀNG ── */
+function layKeySanPham(sp) {
+  const id  = sp["ID"]            ? String(sp["ID"]).trim()            : "NOID";
+  const ten = sp["Tên sản phẩm"]  ? String(sp["Tên sản phẩm"]).trim() : "NoName";
+  return id + "_" + ten;
+}
+
+function clickThemGio(globalIndex) {
+  const sp = tatCaSP[globalIndex];
+  if (!sp) return;
+  const key = layKeySanPham(sp);
+  const idx = gioHang.findIndex(i => i.key === key);
+  if (idx !== -1) {
+    gioHang[idx].soLuong++;
+  } else {
+    gioHang.push({ key, id: sp["ID"]||"", tenSanPham: sp["Tên sản phẩm"], giaBan: Number(sp["Giá bán"])||0, donViTinh: sp["Đơn vị tính"]||"Ly", danhMuc: sp["Danh mục"]||"", soLuong:1 });
+  }
+  capNhatGio();
+  hienToast(`🧋 Đã thêm "${sp["Tên sản phẩm"]}"`);
+}
+
+function xoaGio(key) { gioHang = gioHang.filter(i => i.key !== key); capNhatGio(); }
+function doiSL(key, d) {
+  const idx = gioHang.findIndex(i => i.key === key);
+  if (idx === -1) return;
+  gioHang[idx].soLuong += d;
+  if (gioHang[idx].soLuong <= 0) gioHang.splice(idx, 1);
+  capNhatGio();
+}
+function nhapSL(key, val) {
+  const idx = gioHang.findIndex(i => i.key === key);
+  if (idx === -1) return;
+  let n = parseInt(val);
+  if (isNaN(n)||n<0) n=1;
+  if (n===0) gioHang.splice(idx,1);
+  else gioHang[idx].soLuong = n;
+  capNhatGio();
+}
+
+function capNhatGio() {
+  const tong    = gioHang.reduce((t,i)=>t+i.soLuong,0);
+  const tongTien= gioHang.reduce((t,i)=>t+i.giaBan*i.soLuong,0);
+
+  const hb=document.getElementById("header-badge");
+  const db=document.getElementById("drawer-badge");
+  if (hb) { hb.textContent=tong>99?"99+":tong; hb.classList.toggle("hidden",tong===0); }
+  if (db)  db.textContent = tong;
+
+  setText("tong-tien-text", fTien(tongTien));
+
+  if (phuongThucTT==="Chuyển khoản") {
+    if (!gioHang.length) _qrMaDon="";
+    capNhatQR();
+  }
+
+  const list  = document.getElementById("drawer-list");
+  const empty = document.getElementById("gio-rong");
+  if (!list) return;
+
+  if (!gioHang.length) {
+    list.innerHTML="";
+    if (empty) { list.appendChild(empty); empty.classList.remove("hidden"); }
+    return;
+  }
+  if (empty) empty.classList.add("hidden");
+
+  list.innerHTML = gioHang.map(item => `
+    <div class="flex items-center gap-2.5 rounded-2xl p-2.5 border" style="background:#fdf4ff;border-color:#f5d0fe">
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-bold text-gray-800 truncate leading-tight">${item.tenSanPham}</p>
+        <p class="text-xs font-bold mt-0.5" style="color:#a21caf">${fTien(item.giaBan)}/${item.donViTinh}</p>
+      </div>
+      <div class="flex items-center gap-1.5 flex-shrink-0">
+        <button onclick="doiSL('${esc(item.key)}',-1)" class="w-6 h-6 rounded-full font-bold flex items-center justify-center text-base leading-none" style="background:#f5d0fe;color:#a21caf">−</button>
+        <input type="number" min="0" value="${item.soLuong}" onchange="nhapSL('${esc(item.key)}',this.value)" onfocus="this.select()"
+          class="w-9 text-center text-xs font-bold bg-transparent border-b focus:outline-none [-moz-appearance:_textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" style="border-color:#f5d0fe"/>
+        <button onclick="doiSL('${esc(item.key)}',1)" class="w-6 h-6 rounded-full text-white font-bold flex items-center justify-center text-base leading-none" style="background:#c026d3">+</button>
+      </div>
+      <button onclick="xoaGio('${esc(item.key)}')" class="w-6 h-6 flex items-center justify-center text-red-400 hover:text-red-600 rounded-full transition-colors flex-shrink-0">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>`).join("");
+}
+
+/* ── ĐẶT HÀNG ── */
+async function datHang() {
+  if (!gioHang.length) { hienToast("🧋 Chưa chọn ly nào!"); return; }
+  const hoTen  = document.getElementById("inp-ten").value.trim();
+  const sdt    = document.getElementById("inp-sdt").value.trim();
+  const diaChi = document.getElementById("inp-dc").value.trim();
+  const note   = document.getElementById("inp-note")?.value.trim() || "";
+  if (!hoTen)  { hienToast("⚠️ Nhập họ tên!"); document.getElementById("inp-ten").focus(); return; }
+  if (!/^[0-9]{9,11}$/.test(sdt.replace(/\s/g,""))) { hienToast("⚠️ SĐT không hợp lệ!"); document.getElementById("inp-sdt").focus(); return; }
+  if (!diaChi) { hienToast("⚠️ Nhập địa chỉ nhận hàng!"); document.getElementById("inp-dc").focus(); return; }
+
+  const tongTien = gioHang.reduce((t,i)=>t+i.giaBan*i.soLuong,0);
+  const payload  = { hoTen, soDienThoai:sdt, diaChiNhanHang:diaChi, cart:gioHang, tongTien, phuongThucThanhToan:phuongThucTT, ghiChu:note };
+
+  const btn = document.getElementById("btn-dat-hang");
+  if (!btn) return;
+  btn.disabled = true;
+  btn.innerHTML = `<span class="animate-spin inline-block">⏳</span><span class="ml-1">Đang pha trà...</span>`;
+
+  try {
+    let maDon = "";
+    if (APPS_SCRIPT_URL.includes("ĐẶT_URL")) {
+      await new Promise(r => setTimeout(r, 1200));
+      maDon = "PM" + Date.now();
+    } else {
+      const res  = await fetch(APPS_SCRIPT_URL, { method:"POST", redirect:"follow", headers:{"Content-Type":"text/plain"}, body:JSON.stringify(payload) });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message);
+      maDon = json.maDon;
+    }
+    dongDrawer();
+    hienModal(maDon);
+    gioHang = [];
+    capNhatGio();
+    ["inp-ten","inp-sdt","inp-dc","inp-note"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  } catch(err) {
+    console.error(err);
+    hienToast("❌ Lỗi: "+(err.message||"Thử lại!"), 4000);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = "🧋 Đặt Ly Ngay";
+  }
+}
+
+/* ── THANH TOÁN ── */
+function doiTT(val) {
+  phuongThucTT = val;
+  const ckBox = document.getElementById("ck-box");
+  if (ckBox) ckBox.classList.toggle("hidden", val !== "Chuyển khoản");
+  if (val === "Chuyển khoản") capNhatQR();
+}
+
+/* ── QR VIETQR ── */
+const VIETQR_BIN = {
+  "vietcombank":"970436","vcb":"970436","techcombank":"970407","tcb":"970407",
+  "mbbank":"970422","mb":"970422","vietinbank":"970415","ctg":"970415","bidv":"970418",
+  "agribank":"970405","acb":"970416","tpbank":"970423","vpbank":"970432","sacombank":"970403",
+  "hdbank":"970437","ocb":"970448","msb":"970426","vib":"970441","scb":"970429",
+  "lpb":"970449","lienvietpostbank":"970449","pvcombank":"970412","abbank":"970425",
+  "namabank":"970428","seabank":"970440","bac a bank":"970409","vietabank":"970427",
+  "pgbank":"970430","dongabank":"970406","baovietbank":"970438","saigonbank":"970400",
+  "kienlongbank":"970452","vietbank":"970433","ncb":"970419","gpbank":"970408",
+  "cbbank":"970444","indovinabank":"970434","woori":"970457","shinhan":"970424",
+  "hsbc":"458761","standard chartered":"970410","citibank":"533948",
+};
+let _qrMaDon = "";
+function capNhatQR() {
+  const ch       = cuaHang;
+  const stk      = (ch["Số tài khoản"]||"").replace(/\s/g,"");
+  const nhRaw    = (ch["Tên ngân hàng"]||"").toLowerCase().trim();
+  const tenCH    = (ch["Tên cửa hàng"]||"PAT MILK").toUpperCase();
+  const tongTien = gioHang.reduce((t,i)=>t+i.giaBan*i.soLuong,0);
+
+  if (!_qrMaDon || !gioHang.length) _qrMaDon = gioHang.length ? "PM"+Date.now().toString().slice(-8) : "--";
+  setText("ck-ma-don", gioHang.length ? "#"+_qrMaDon : "#--");
+  setText("ck-so-tien", fTien(tongTien));
+
+  const overlay=document.getElementById("ck-qr-overlay");
+  if (overlay) overlay.classList.toggle("hidden", gioHang.length>0);
+
+  const sdt = (document.getElementById("inp-sdt")?.value||"").trim();
+  const noiDung = (sdt?sdt+" ":"")+tenCH+" #"+_qrMaDon;
+  setText("ck-nd-preview", noiDung);
+
+  if (!stk) return;
+  let bin="";
+  for (const [key,val] of Object.entries(VIETQR_BIN)) { if(nhRaw.includes(key)){bin=val;break;} }
+  let qrUrl;
+  if (bin&&stk) {
+    const params=new URLSearchParams({amount:tongTien>0?tongTien:0,addInfo:noiDung,accountName:ch["Tên chủ TK"]||""});
+    qrUrl=`https://img.vietqr.io/image/${bin}-${stk}-compact2.png?${params}`;
+  } else {
+    const fd=`${nhRaw.toUpperCase()} ${stk} ${noiDung} ${tongTien}`;
+    qrUrl=`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(fd)}&size=200x200&bgcolor=ffffff&margin=10`;
+  }
+  setAttr("ck-qr","src",qrUrl);
+}
+
+/* ── DRAWER & MODAL ── */
+function moDrawer() { document.getElementById("gio-hang-drawer")?.classList.add("open"); document.getElementById("overlay")?.classList.add("show"); document.body.style.overflow="hidden"; }
+function dongDrawer() { document.getElementById("gio-hang-drawer")?.classList.remove("open"); document.getElementById("overlay")?.classList.remove("show"); document.body.style.overflow=""; }
+function hienModal(maDon) { setText("modal-ma-don","Mã đơn: #"+maDon); document.getElementById("modal-ok")?.classList.add("show"); }
+function dongModal() { document.getElementById("modal-ok")?.classList.remove("show"); }
+
+/* ── TOAST ── */
+let toastT=null;
+function hienToast(msg,dur=2400) {
+  const el=document.getElementById("toast"); if(!el)return;
+  el.textContent=msg; el.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove("show"),dur);
+}
+
+/* ── SKELETON / ERROR ── */
+function hienSkeleton() {
+  const el=document.getElementById("luoi-sp");
+  if(el) el.innerHTML=Array(8).fill(0).map(()=>`<div class="skel rounded-2xl" style="height:220px"></div>`).join("");
+}
+function hienTrangLoi() {
+  const el=document.getElementById("luoi-sp");
+  if(el) el.innerHTML=`<div class="col-span-full text-center py-14"><div style="font-size:48px;margin-bottom:8px">⚠️</div><p class="font-bold text-red-500">Không thể tải menu</p><p class="text-sm text-gray-400 mt-1 mb-4">Kiểm tra URL Apps Script hoặc kết nối mạng</p><button onclick="taiLai()" class="text-white px-5 py-2 rounded-2xl text-sm font-bold" style="background:#c026d3">Thử lại</button></div>`;
+  setText("ket-qua","Lỗi tải menu");
+}
+
+/* ── UTILS ── */
+function fTien(n) { return Number(n).toLocaleString("vi-VN")+"đ"; }
+function setText(id,val) { const el=document.getElementById(id); if(el) el.textContent=val; }
+function setAttr(id,attr,val) { const el=document.getElementById(id); if(el) el[attr]=val; }
+function esc(s) { return String(s).replace(/'/g,"\\'").replace(/"/g,'\\"'); }
+function escHtml(t) { return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+document.addEventListener("keydown", e => { if(e.key==="Escape") dongDrawer(); });
+
+/* ── MAP ── */
+function capNhatMap(diaChi, tenCuaHang) {
+  if (!diaChi) return;
+  const iframe=document.getElementById("footer-map");
+  const placeholder=document.getElementById("map-placeholder");
+  const mapLink=document.getElementById("footer-map-link");
+  const dcLabel=document.getElementById("footer-dc-map");
+  if (dcLabel) dcLabel.textContent = "– "+diaChi;
+  const query=encodeURIComponent((tenCuaHang?tenCuaHang+", ":"")+diaChi);
+  if (mapLink) mapLink.href=`https://www.google.com/maps/search/?api=1&query=${query}`;
+  if (iframe) {
+    iframe.src=`https://maps.google.com/maps?q=${query}&output=embed&hl=vi&z=16`;
+    iframe.onload=()=>{ iframe.style.opacity="1"; if(placeholder) placeholder.style.display="none"; };
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   🤖 AI CHATBOX – Trợ Lý PAT Milk
+══════════════════════════════════════════════════════ */
+let chatOpen=false, chatHistory=[], chatGreeted=false;
+
+const CHIPS_DEFAULT=[
+  "🕗 Mấy giờ mở cửa?",
+  "🧋 Menu có gì không?",
+  "🛵 Ship bao nhiêu tiền?",
+  "👑 Đăng ký VIP như nào?",
+  "💳 Thanh toán kiểu gì?",
+  "🔥 Có khuyến mãi không?",
+];
+
+function toggleChatbox() {
+  chatOpen=!chatOpen;
+  const box=document.getElementById("ai-chatbox");
+  const fab=document.getElementById("fab-ai");
+  if (chatOpen) {
+    box.style.display="flex";
+    fab.classList.remove("pulse");
+    if (!chatGreeted) { chatGreeted=true; hienLoiChao(); }
+    setTimeout(()=>document.getElementById("ai-input")?.focus(),100);
+  } else {
+    box.style.display="none";
+  }
+}
+
+function hienLoiChao() {
+  const ten=cuaHang["Tên cửa hàng"]||"PAT Milk";
+  const gio=cuaHang["Giờ mở cửa"]||"9:00 – 22:00";
+  const headerName=document.getElementById("ai-header-name");
+  if (headerName) headerName.textContent="Trợ Lý "+ten;
+  const msg=`Yoooo bạn ơi! Tui là trợ lý xinh xắn của *${ten}* nè! Bạn muốn hỏi gì cứ hỏi thoải mái — giá cả, menu, ship hay đăng ký thẻ VIP siêu xịn — tui biết hết! 🐾`;
+  themTinNhanBot(msg);
+  capNhatChips(CHIPS_DEFAULT);
+}
+
+function capNhatChips(chips) {
+  const el=document.getElementById("ai-chips"); if(!el)return;
+  el.innerHTML=chips.map(c=>`<button class="ai-chip" onclick="chonChip(this)">${c}</button>`).join("");
+}
+function chonChip(btn) { document.getElementById("ai-input").value=btn.textContent; guiCauHoi(); }
+
+function themTinNhanBot(text, extraHtml="") {
+  const el=document.getElementById("ai-messages"); if(!el)return;
+  const div=document.createElement("div"); div.className="ai-bubble-bot";
+  div.innerHTML=`<div style="width:28px;height:28px;background:#fae8ff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🤖</div><div class="bubble">${text.replace(/\*(.*?)\*/g,'<strong>$1</strong>')}${extraHtml}</div>`;
+  el.appendChild(div); el.scrollTop=el.scrollHeight;
+}
+function themTinNhanUser(text) {
+  const el=document.getElementById("ai-messages"); if(!el)return;
+  const div=document.createElement("div"); div.className="ai-bubble-user";
+  div.innerHTML=`<div class="bubble">${escHtml(text)}</div>`;
+  el.appendChild(div); el.scrollTop=el.scrollHeight;
+}
+function hienTyping() {
+  const el=document.getElementById("ai-messages"); if(!el)return;
+  const div=document.createElement("div"); div.className="ai-typing"; div.id="ai-typing-bubble";
+  div.innerHTML=`<div style="width:28px;height:28px;background:#fae8ff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🧋</div><div class="bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  el.appendChild(div); el.scrollTop=el.scrollHeight;
+}
+function xoaTyping() { document.getElementById("ai-typing-bubble")?.remove(); }
+
+async function guiCauHoi() {
+  const inp=document.getElementById("ai-input");
+  const text=inp.value.trim(); if(!text)return;
+  inp.value=""; inp.style.height="auto";
+  themTinNhanUser(text);
+  chatHistory.push({role:"user",content:text});
+  capNhatChips([]);
+  const btn=document.getElementById("ai-send-btn");
+  if(btn) btn.style.opacity="0.5";
+  hienTyping();
+  try {
+    const reply=await goiClaude(text);
+    xoaTyping();
+    const kwOrder=["đặt","mua","thêm vào","giỏ","order","cho tui","cho mình"];
+    const hasOrderBtn=kwOrder.some(k=>reply.toLowerCase().includes(k)||text.toLowerCase().includes(k));
+    const extraHtml=hasOrderBtn?`<br/><button class="ai-order-btn" onclick="moDrawer();toggleChatbox()">🛒 Mở giỏ hàng đặt ngay</button>`:"";
+    const hvHtml=reply.toLowerCase().includes("vip")||reply.toLowerCase().includes("hội viên")?`<br/><button class="ai-order-btn" style="background:linear-gradient(135deg,#d97706,#b45309)" onclick="moFormHoiVien()">👑 Đăng ký VIP ngay</button>`:"";
+    themTinNhanBot(reply, extraHtml+hvHtml);
+    chatHistory.push({role:"assistant",content:reply});
+    capNhatChips(["🔥 Khuyến mãi?","📦 Menu đầy đủ?","👑 Ưu đãi VIP?","🛵 Phí ship?","🧋 Món hot nhất?"]);
+  } catch(err) {
+    xoaTyping();
+    themTinNhanBot("Ôi tui đang bị lag chút xíu 😅 Bạn nhắn lại sau hoặc gọi thẳng cho tụi mình nha!");
+  }
+  if(btn) btn.style.opacity="1";
+}
+
+async function goiClaude(userMsg) {
+  const response=await fetch(APPS_SCRIPT_URL, {
+    method:"POST", redirect:"follow",
+    headers:{"Content-Type":"text/plain"},
+    body:JSON.stringify({action:"chatAI", history:chatHistory})
+  });
+  const json=await response.json();
+  if(!json.success) { console.error("Lỗi AI:",json.message); throw new Error(json.message); }
+  return json.reply;
+}
+
+/* ── ĐĂNG KÝ VIP ── */
+function moFormHoiVien() {
+  document.getElementById("modal-hoi-vien").style.display="flex";
+  document.getElementById("hv-form-wrap").style.display="block";
+  document.getElementById("hv-success").style.display="none";
+}
+function dongModalHoiVien() { document.getElementById("modal-hoi-vien").style.display="none"; }
+document.getElementById("modal-hoi-vien").addEventListener("click", function(e){if(e.target===this)dongModalHoiVien();});
+
+async function dangKyHoiVien() {
+  const ten      =document.getElementById("hv-ten").value.trim();
+  const sdt      =document.getElementById("hv-sdt").value.trim();
+  const ngaySinh =document.getElementById("hv-ngaysinh").value;
+  const gioiTinh =document.getElementById("hv-gioitinh").value;
+  const diaChi   =document.getElementById("hv-diachi").value.trim();
+  if(!ten||!sdt){hienToast("⚠️ Nhập họ tên và số điện thoại!",3000);return;}
+  if(!/^(0|\+84)[0-9]{8,10}$/.test(sdt.replace(/\s/g,""))){hienToast("⚠️ SĐT không hợp lệ!",3000);return;}
+  const btn=document.getElementById("hv-btn-submit");
+  btn.textContent="⏳ Đang đăng ký..."; btn.style.opacity="0.7";
+  try {
+    const payload={action:"dangKyHoiVien",hoTen:ten,soDienThoai:sdt.replace(/\s/g,""),ngaySinh,gioiTinh,diaChi,thoiGian:new Date().toLocaleString("vi-VN")};
+    const res=await fetch(APPS_SCRIPT_URL,{method:"POST",redirect:"follow",body:JSON.stringify(payload)});
+    await res.json();
+  } catch(e) {}
+  document.getElementById("hv-form-wrap").style.display="none";
+  const successMsg=document.getElementById("hv-success-msg");
+  successMsg.textContent=`Chào mừng ${ten} gia nhập VIP PAT Milk! 🎉 Từ giờ bạn được giảm 10% mỗi ly, nhận trà sinh nhật miễn phí và ưu tiên flash sale siêu xịn nhen!`;
+  document.getElementById("hv-success").style.display="block";
+  hienToast("🎉 Đăng ký VIP thành công!", 3000);
+  if(chatOpen) setTimeout(()=>{themTinNhanBot(`Xịn quá ${ten} ơi! 👑 Bạn vừa lên VIP PAT Milk rồi đó! Giảm 10% mỗi ly luôn nha, còn có trà sinh nhật miễn phí nữa! Mua thêm đi cho có lời bạn ơi! 🧋🎉`);},500);
+  btn.textContent="👑 Đăng Ký VIP Ngay"; btn.style.opacity="1";
+}
+
+setTimeout(()=>{if(!chatOpen) document.getElementById("fab-ai")?.classList.add("pulse");},3000);
+
+/* ════════════════════════════════════════════════════════
+   📋 DỮ LIỆU MẪU DEMO
+════════════════════════════════════════════════════════ */
+function duLieuMauCH() {
+  return {
+    "Tên cửa hàng":   "PAT Milk",
+    "Slogan":         "Boba • Milk Tea • Love ✨",
+    "Địa chỉ":        "123 Đường Phạm Văn Đồng, P.Hiệp Bình Phước, TP.HCM",
+    "Số điện thoại":  "0909123456",
+    "Zalo":           "0909123456",
+    "Giờ mở cửa":     "9:00 – 22:00 mỗi ngày",
+    "Logo URL":       "https://placehold.co/120x120/c026d3/ffffff?text=🧋",
+    "Hero Banner URL":"",
+    "Mô tả ngắn":     "Trà sữa chibi siêu cute – Nguyên liệu tươi sạch – Giao hàng 30 phút",
+    "Tên ngân hàng":  "Vietcombank",
+    "Số tài khoản":   "1234567890",
+    "Tên chủ TK":     "NGUYEN THI PAT",
+    "Shopee Store":   "https://shopee.vn/patmilk",
+    "Facebook":       "https://facebook.com/patmilk",
+  };
+}
+
+function duLieuMauSP() {
+  return [
+    {"ID":"TS001","Tên sản phẩm":"Trà Sữa Truyền Thống","Danh mục":"Trà Sữa","Giá bán":29000,"Đơn vị tính":"Ly M","Link hình ảnh":"https://placehold.co/400x400/fdf4ff/c026d3?text=🧋","Trạng thái":"Còn hàng"},
+    {"ID":"TS002","Tên sản phẩm":"Trà Sữa Truyền Thống","Danh mục":"Trà Sữa","Giá bán":35000,"Đơn vị tính":"Ly L","Link hình ảnh":"https://placehold.co/400x400/fdf4ff/c026d3?text=🧋L","Trạng thái":"Còn hàng"},
+    {"ID":"TS003","Tên sản phẩm":"Trà Sữa Taro","Danh mục":"Trà Sữa","Giá bán":35000,"Đơn vị tính":"Ly M","Link hình ảnh":"https://placehold.co/400x400/f5d0fe/7c3aed?text=🍠","Trạng thái":"Còn hàng"},
+    {"ID":"TS004","Tên sản phẩm":"Trà Sữa Taro","Danh mục":"Trà Sữa","Giá bán":42000,"Đơn vị tính":"Ly L","Link hình ảnh":"https://placehold.co/400x400/f5d0fe/7c3aed?text=🍠L","Trạng thái":"Còn hàng"},
+    {"ID":"MT001","Tên sản phẩm":"Matcha Sữa Tươi","Danh mục":"Matcha","Giá bán":39000,"Đơn vị tính":"Ly M","Link hình ảnh":"https://placehold.co/400x400/d1fae5/065f46?text=🍵","Trạng thái":"Còn hàng"},
+    {"ID":"MT002","Tên sản phẩm":"Matcha Sữa Tươi","Danh mục":"Matcha","Giá bán":46000,"Đơn vị tính":"Ly L","Link hình ảnh":"https://placehold.co/400x400/d1fae5/065f46?text=🍵L","Trạng thái":"Còn hàng"},
+    {"ID":"TC001","Tên sản phẩm":"Trà Dâu Tây","Danh mục":"Trà Trái Cây","Giá bán":32000,"Đơn vị tính":"Ly M","Link hình ảnh":"https://placehold.co/400x400/fce7f3/9d174d?text=🍓","Trạng thái":"Còn hàng"},
+    {"ID":"TC002","Tên sản phẩm":"Trà Xoài Chanh Leo","Danh mục":"Trà Trái Cây","Giá bán":34000,"Đơn vị tính":"Ly M","Link hình ảnh":"https://placehold.co/400x400/fef9c3/713f12?text=🥭","Trạng thái":"Còn hàng"},
+    {"ID":"SD001","Tên sản phẩm":"Soda Dưa Hấu","Danh mục":"Soda","Giá bán":28000,"Đơn vị tính":"Ly M","Link hình ảnh":"https://placehold.co/400x400/dcfce7/166534?text=🍉","Trạng thái":"Còn hàng"},
+    {"ID":"SD002","Tên sản phẩm":"Soda Chanh Muối","Danh mục":"Soda","Giá bán":25000,"Đơn vị tính":"Ly S","Link hình ảnh":"https://placehold.co/400x400/e0f2fe/075985?text=🍋","Trạng thái":"Còn hàng"},
+    {"ID":"TP001","Tên sản phẩm":"Trân châu đen","Danh mục":"Topping","Giá bán":5000,"Đơn vị tính":"Phần","Link hình ảnh":"https://placehold.co/400x400/1c1917/fff?text=⬤","Trạng thái":"Còn hàng"},
+    {"ID":"TP002","Tên sản phẩm":"Pudding trứng","Danh mục":"Topping","Giá bán":6000,"Đơn vị tính":"Phần","Link hình ảnh":"https://placehold.co/400x400/fef9c3/92400e?text=🍮","Trạng thái":"Còn hàng"},
+    {"ID":"CB001","Tên sản phẩm":"Combo 2 Ly","Danh mục":"Combo","Giá bán":60000,"Đơn vị tính":"Set 2 ly M","Link hình ảnh":"https://placehold.co/400x400/fdf4ff/a21caf?text=🎁","Trạng thái":"Còn hàng"},
+    {"ID":"TS005","Tên sản phẩm":"Trà Sữa Khoai Môn","Danh mục":"Trà Sữa","Giá bán":35000,"Đơn vị tính":"Ly M","Link hình ảnh":"https://placehold.co/400x400/ede9fe/4c1d95?text=🌸","Trạng thái":"Hết hàng"},
+  ];
+}
+
+function duLieuMauShopee() {
+  return [
+    {"ID":"SH001","Tên sản phẩm":"Bình giữ nhiệt 500ml cute","Hình ảnh":"https://placehold.co/400x400/ee4d2d/ffffff?text=Bình+Giữ+Nhiệt","Link Affiliate":"https://s.shopee.vn/demo1"},
+    {"ID":"SH002","Tên sản phẩm":"Ống hút chibi 100 cái","Hình ảnh":"https://placehold.co/400x400/ee4d2d/ffffff?text=Ống+Hút","Link Affiliate":"https://s.shopee.vn/demo2"},
+    {"ID":"SH003","Tên sản phẩm":"Set pha trà sữa tại nhà","Hình ảnh":"https://placehold.co/400x400/ee4d2d/ffffff?text=Set+Pha+Trà","Link Affiliate":"https://s.shopee.vn/demo3"},
+    {"ID":"SH004","Tên sản phẩm":"Ly thủy tinh borosilicate","Hình ảnh":"https://placehold.co/400x400/ee4d2d/ffffff?text=Ly+Thủy+Tinh","Link Affiliate":"https://s.shopee.vn/demo4"},
+    {"ID":"SH005","Tên sản phẩm":"Trân châu đen túi 500g","Hình ảnh":"https://placehold.co/400x400/ee4d2d/ffffff?text=Trân+Châu","Link Affiliate":"https://s.shopee.vn/demo5"},
+    {"ID":"SH006","Tên sản phẩm":"Bột matcha latte Nhật","Hình ảnh":"https://placehold.co/400x400/ee4d2d/ffffff?text=Matcha","Link Affiliate":"https://s.shopee.vn/demo6"},
+  ];
+}
+
+function duLieuMauSuKien() {
+  const now=new Date();
+  const fmt=d=>d.toLocaleDateString("vi-VN");
+  const add=days=>new Date(now.getTime()+days*86400000);
+  return [
+    {"ID":"SK001","Tiêu đề":"Mua 2 Tặng 1 Cuối Tuần","Loại":"khuyenmai","Mô tả":"Mua 2 ly bất kỳ tặng thêm 1 topping gratis! Áp dụng thứ 7 & Chủ nhật. Đừng bỏ lỡ!","Hình ảnh":"","Ngày bắt đầu":fmt(now),"Ngày kết thúc":fmt(add(3)),"Nhãn nổi bật":"🎁 FREE TOPPING","Màu nền":"#c026d3","Liên kết":"","Trạng thái":"Đang diễn ra"},
+    {"ID":"SK002","Tiêu đề":"VIP Member Giảm 10%","Loại":"giamgia","Mô tả":"Đăng ký thẻ VIP miễn phí – giảm 10% tất cả đơn hàng. Thêm cả quà sinh nhật nữa nha!","Hình ảnh":"","Ngày bắt đầu":fmt(now),"Ngày kết thúc":fmt(add(30)),"Nhãn nổi bật":"👑 VIP DEAL","Màu nền":"#7c3aed","Liên kết":"","Trạng thái":"Đang diễn ra"},
+  ];
+}
+
+/* ── CHẠY ── */
+khoiDong();
+</script>
+</body>
+</html>
