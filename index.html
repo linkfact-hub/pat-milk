@@ -596,7 +596,7 @@
 ════════════════════════════════════════════════════════ -->
 <script>
 /* ── CẤU HÌNH ── */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxVPlL-_TeVBNy6bwwT9NoeLBlMVDgTPeZx70lb1Z6E3werhizmyIbB_Nx4E4OKjt7C/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyG_x9uwyseIkJhkG53uKUsyHNMzw_KO2PF_g8NGTMwJvWkgsAkfFu78C1tyHk5UBIWwA/exec";
 
 /* ── STATE ── */
 let tatCaSP       = [];
@@ -978,7 +978,7 @@ function clickThemGio(globalIndex) {
     gioHang.push({ key, id: sp["ID"]||"", tenSanPham: sp["Tên sản phẩm"], giaBan: Number(sp["Giá bán"])||0, donViTinh: sp["Đơn vị tính"]||"Ly", danhMuc: sp["Danh mục"]||"", soLuong:1 });
   }
   capNhatGio();
-  hienToast(`🧋 Đã thêm "${sp["Tên sản phẩm"]}"`);
+  hienToast(`🛒 Đã thêm "${sp["Tên sản phẩm"]}"`);
 }
 
 function xoaGio(key) { gioHang = gioHang.filter(i => i.key !== key); capNhatGio(); }
@@ -1198,7 +1198,7 @@ let chatOpen=false, chatHistory=[], chatGreeted=false;
 
 const CHIPS_DEFAULT=[
   "🕗 Mấy giờ mở cửa?",
-  "🧋 Menu có gì không?",
+  "🧾 Menu có gì không?",
   "🛵 Ship bao nhiêu tiền?",
   "👑 Đăng ký VIP như nào?",
   "💳 Thanh toán kiểu gì?",
