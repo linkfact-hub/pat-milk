@@ -317,8 +317,11 @@
   </div>
 
   <!-- List -->
-  <div id="drawer-list" class="flex-1 overflow-y-auto p-3 space-y-2.5">
-    <div id="gio-rong" class="text-center py-14 text-gray-400">
+  <div class="flex-1 overflow-y-auto flex flex-col">
+
+    <div id="drawer-list" class="p-3 space-y-2.5">
+      <div id="gio-rong" class="text-center py-14 text-gray-400">
+          </div>
       <div style="font-size:48px;margin-bottom:8px">🧋</div>
       <p class="font-bold">Chưa có ly nào!</p>
       <p class="text-sm mt-1">Chọn đồ uống yêu thích nhé 😊</p>
@@ -326,7 +329,7 @@
   </div>
 
   <!-- Form đặt hàng -->
-  <div class="border-t p-4 space-y-2.5 flex-shrink-0" style="background:#fdf4ff;border-color:#f5d0fe">
+  <div class="mt-auto border-t p-4 space-y-2.5 flex-shrink-0" style="background:#fdf4ff;border-color:#f5d0fe">
     <div class="flex justify-between items-center">
       <span class="font-bold text-gray-600 text-sm">Tổng cộng:</span>
       <span id="tong-tien-text" class="text-xl font-extrabold" style="color:#a21caf">0đ</span>
@@ -1084,7 +1087,7 @@ async function datHang() {
     hienToast("❌ Lỗi: "+(err.message||"Thử lại!"), 4000);
   } finally {
     btn.disabled = false;
-    btn.innerHTML = "🧋 Đặt Ly Ngay";
+    btn.innerHTML = "Đặt Ly Ngay";
   }
 }
 
