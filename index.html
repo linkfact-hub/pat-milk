@@ -60,7 +60,7 @@
     .shopee-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(238,77,45,.18)}
 
     /* ── Drawer ── */
-    #gio-hang-drawer{position:fixed;right:0;top:0;height:100%;width:min(430px,100vw);background:#fff;z-index:100;box-shadow:-6px 0 36px rgba(217,70,239,.15);transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+    #gio-hang-drawer{position:fixed;right:0;top:0;height:100%;width:min(430px,100vw);background:#fff;z-index:100;box-shadow:-6px 0 36px rgba(217,70,239,.15);transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
     #gio-hang-drawer.open{transform:translateX(0)}
 
     /* ── Overlay ── */
@@ -317,19 +317,18 @@
   </div>
 
   <!-- List -->
-  <div class="flex-1 overflow-y-auto flex flex-col">
-
+  <div class="flex-1 overflow-y-auto flex flex-col min-h-0">
     <div id="drawer-list" class="p-3 space-y-2.5">
       <div id="gio-rong" class="text-center py-14 text-gray-400">
-          </div>
-      <div style="font-size:48px;margin-bottom:8px">🧋</div>
-      <p class="font-bold">Chưa có ly nào!</p>
-      <p class="text-sm mt-1">Chọn đồ uống yêu thích nhé 😊</p>
+        <div style="font-size:48px;margin-bottom:8px"></div>
+        <p class="font-bold">Chưa có ly nào!</p>
+        <p class="text-sm mt-1">Hãy chọn đồ uống yêu thích nhé 😊</p>
+      </div>
     </div>
-  </div>
-
+</div>
   <!-- Form đặt hàng -->
-  <div class="mt-auto border-t p-4 space-y-2.5 flex-shrink-0" style="background:#fdf4ff;border-color:#f5d0fe">
+  <div class="mt-auto border-t p-4 space-y-2.5 flex-shrink-0" 
+     style="background:#fdf4ff;border-color:#f5d0fe;max-height:70vh;overflow-y:auto">
     <div class="flex justify-between items-center">
       <span class="font-bold text-gray-600 text-sm">Tổng cộng:</span>
       <span id="tong-tien-text" class="text-xl font-extrabold" style="color:#a21caf">0đ</span>
@@ -387,7 +386,7 @@
     <button id="btn-dat-hang" onclick="datHang()"
       class="w-full text-white font-bold py-3 rounded-2xl transition-all text-sm flex items-center justify-center gap-2 shadow-md"
       style="background:linear-gradient(135deg,#c026d3,#a21caf)">
-      🧋 Đặt Ly Ngay
+       Đặt Ly Ngay
     </button>
   </div>
 </div>
@@ -414,7 +413,7 @@
       <img id="header-logo" src="https://placehold.co/40x40/c026d3/fff?text=🧋" alt="Logo" class="w-10 h-10 rounded-2xl object-cover shadow"/>
       <div>
         <div id="header-ten" class="font-extrabold text-sm leading-tight" style="color:#a21caf;font-family:'Fredoka One',cursive">PAT Milk</div>
-        <div id="header-slogan" class="text-[10px] font-semibold" style="color:#d946ef">Boba • Milk Tea • Love 🧋</div>
+        <div id="header-slogan" class="text-[10px] font-semibold" style="color:#d946ef">Boba • Milk Tea • Love </div>
       </div>
     </div>
 
@@ -1049,7 +1048,7 @@ function capNhatGio() {
 
 /* ── ĐẶT HÀNG ── */
 async function datHang() {
-  if (!gioHang.length) { hienToast("🧋 Chưa chọn ly nào!"); return; }
+  if (!gioHang.length) { hienToast("Chưa chọn ly nào!"); return; }
   const hoTen  = document.getElementById("inp-ten").value.trim();
   const sdt    = document.getElementById("inp-sdt").value.trim();
   const diaChi = document.getElementById("inp-dc").value.trim();
@@ -1303,7 +1302,7 @@ function moFormHoiVien() {
   document.getElementById("hv-success").style.display="none";
 }
 function dongModalHoiVien() { document.getElementById("modal-hoi-vien").style.display="none"; }
-document.getElementById("modal-hoi-vien").addEventListener("click", function(e){if(e.target===this)dongModalHoiVien();});
+document.getElementById("modal-hoi-vien")?.addEventListener("click", function(e){if(e.target===this)dongModalHoiVien();});
 
 async function dangKyHoiVien() {
   const ten      =document.getElementById("hv-ten").value.trim();
