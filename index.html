@@ -261,7 +261,7 @@
         </div>
         <div>
           <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:4px">📱 Số điện thoại *</label>
-          <input id="hv-sdt" type="tel" placeholder="0909 123 456" class="inp" style="width:100%;border:1.5px solid #e5e7eb;border-radius:12px;padding:9px 12px;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+          <input id="hv-sdt" type="tel" placeholder="0909 123 456" class="inp" style="width:100%;border:1.5px solid #e5e7eb;border-radius:12px;padding:9px 12px;font-size:13px;font-family:inherit;box-sizing:border-box" oninput="handleSdtInput(this)"/>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <div>
@@ -334,7 +334,7 @@
       <span id="tong-tien-text" class="text-xl font-extrabold" style="color:#a21caf">0đ</span>
     </div>
     <input id="inp-ten" type="text" placeholder="👤 Họ và tên *" class="inp w-full border rounded-2xl px-3 py-2.5 text-sm bg-white" style="border-color:#e5e7eb"/>
-    <input id="inp-sdt" type="tel" placeholder="📞 Số điện thoại *" class="inp w-full border rounded-2xl px-3 py-2.5 text-sm bg-white" style="border-color:#e5e7eb" oninput="if(phuongThucTT==='Chuyển khoản') capNhatQR()"/>
+    <input id="inp-sdt" type="tel" placeholder="📞 Số điện thoại *" class="inp w-full border rounded-2xl px-3 py-2.5 text-sm bg-white" style="border-color:#e5e7eb" oninput="handleSdtInput(this); if(phuongThucTT==='Chuyển khoản') capNhatQR()"/>
     <textarea id="inp-dc" rows="2" placeholder="📍 Địa chỉ nhận hàng *" class="inp w-full border rounded-2xl px-3 py-2.5 text-sm bg-white resize-none" style="border-color:#e5e7eb"></textarea>
 
     <!-- Ghi chú -->
@@ -1054,7 +1054,7 @@ async function datHang() {
   const diaChi = document.getElementById("inp-dc").value.trim();
   const note   = document.getElementById("inp-note")?.value.trim() || "";
   if (!hoTen)  { hienToast("⚠️ Nhập họ tên!"); document.getElementById("inp-ten").focus(); return; }
-  if (!/^[0-9]{9,11}$/.test(sdt.replace(/\s/g,""))) { hienToast("⚠️ SĐT không hợp lệ!"); document.getElementById("inp-sdt").focus(); return; }
+  if (!validateSdtVN(sdt)) { hienToast("⚠️ SĐT không hợp lệ!"); document.getElementById("inp-sdt").focus(); return; }
   if (!diaChi) { hienToast("⚠️ Nhập địa chỉ nhận hàng!"); document.getElementById("inp-dc").focus(); return; }
 
   const tongTien = gioHang.reduce((t,i)=>t+i.giaBan*i.soLuong,0);
@@ -1311,7 +1311,7 @@ async function dangKyHoiVien() {
   const gioiTinh =document.getElementById("hv-gioitinh").value;
   const diaChi   =document.getElementById("hv-diachi").value.trim();
   if(!ten||!sdt){hienToast("⚠️ Nhập họ tên và số điện thoại!",3000);return;}
-  if(!/^(0|\+84)[0-9]{8,10}$/.test(sdt.replace(/\s/g,""))){hienToast("⚠️ SĐT không hợp lệ!",3000);return;}
+  if(!validateSdtVN(sdt)){hienToast("⚠️ SĐT không hợp lệ!",3000);return;}
   const btn=document.getElementById("hv-btn-submit");
   btn.textContent="⏳ Đang đăng ký..."; btn.style.opacity="0.7";
   try {
@@ -1391,7 +1391,28 @@ function duLieuMauSuKien() {
     {"ID":"SK002","Tiêu đề":"VIP Member Giảm 10%","Loại":"giamgia","Mô tả":"Đăng ký thẻ VIP miễn phí – giảm 10% tất cả đơn hàng. Thêm cả quà sinh nhật nữa nha!","Hình ảnh":"","Ngày bắt đầu":fmt(now),"Ngày kết thúc":fmt(add(30)),"Nhãn nổi bật":"👑 VIP DEAL","Màu nền":"#7c3aed","Liên kết":"","Trạng thái":"Đang diễn ra"},
   ];
 }
+/* ── TIỆN ÍCH SĐT ── */
+function formatSdtVN(val) {
+  let digits = val.replace(/\D/g, "").slice(0, 10);
+  if (digits.length > 7) return digits.slice(0,4) + " " + digits.slice(4,7) + " " + digits.slice(7);
+  if (digits.length > 4) return digits.slice(0,4) + " " + digits.slice(4);
+  return digits;
+}
 
+function validateSdtVN(val) {
+  return /^(0[35789])[0-9]{8}$/.test(val.replace(/\s/g,""));
+}
+
+function handleSdtInput(el) {
+  const pos    = el.selectionStart;
+  const oldLen = el.value.length;
+  el.value     = formatSdtVN(el.value);
+  const diff   = el.value.length - oldLen;
+  try { el.setSelectionRange(pos + diff, pos + diff); } catch(e){}
+  const ok = validateSdtVN(el.value);
+  const digits = el.value.replace(/\s/g,"");
+  el.style.borderColor = digits.length === 0 ? "#e5e7eb" : ok ? "#22c55e" : "#ef4444";
+}
 /* ── CHẠY ── */
 khoiDong();
 </script>
